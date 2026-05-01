@@ -139,8 +139,4 @@ wumpus-world/
 - Grid minimum is `3×3`.
 - The resolution prover caps clause count at **800** to prevent runaway inference.
 
----
 
-## 📄 License
-
-MIT License. Feel free to use, modify, and distribute.
