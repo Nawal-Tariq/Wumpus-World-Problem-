@@ -1,25 +1,25 @@
-Wumpus World AI Agent (Flask)
+🧠 Wumpus World AI Agent (Flask)
 📌 Overview
 
-This project is a Wumpus World simulation implemented using Flask (Python).
-An intelligent agent explores a grid environment while avoiding hidden dangers using logical reasoning (Knowledge Base + Resolution).
+This project is a Wumpus World simulation built using Flask (Python).
+An intelligent agent explores a grid and avoids dangers using logical reasoning (Knowledge Base + Resolution).
 
 🎯 Features
-Grid-based environment (custom size)
+Custom grid size (Rows × Columns)
 Random placement of:
 🕳️ Pits
 👹 Wumpus
-Intelligent agent with:
-Perception (Breeze, Stench)
-Logical inference using Resolution
+Intelligent agent:
+Detects Breeze and Stench
+Uses logical inference
 Step-by-step simulation
-Web-based interface (Flask)
+Web-based interface
 🧩 Concepts Used
 Artificial Intelligence (AI)
 Knowledge-Based Agents
 Propositional Logic
 Resolution Algorithm
-Flask Web Development
+Flask
 🗂️ Project Structure
 project/
 │── app.py
@@ -27,26 +27,26 @@ project/
 │    └── index.html
 │── static/ (optional)
 ⚙️ Installation & Setup
-1. Clone or Download
+1. Clone Repository
 git clone <your-repo-link>
 cd project
 2. Install Dependencies
 pip install flask
-3. Run the Application
+3. Run the App
 python app.py
 4. Open in Browser
 http://127.0.0.1:5000/
 🎮 How It Works
-1. Start Episode
+Start Episode
 User selects:
-Grid size (Rows × Columns)
+Grid size
 Number of pits
-2. Agent Behavior
+Agent Behavior
 Starts at (0,0)
-Observes:
+Percepts:
 Breeze → Pit nearby
 Stench → Wumpus nearby
-3. Decision Making
+Decision Making
 
 Agent uses:
 
@@ -56,73 +56,59 @@ Resolution algorithm
 To:
 
 Infer safe cells
-Avoid dangerous cells
+Avoid danger
 Move step-by-step
 🧠 Knowledge Representation
-
-Each cell is represented using literals:
-
 P_r_c → Pit at (r,c)
 W_r_c → Wumpus at (r,c)
 !P_r_c → No pit
 !W_r_c → No Wumpus
 🔍 Inference Rules
-No Breeze → No pit in neighbors
-Breeze → At least one neighbor has a pit
+No Breeze → No pits nearby
+Breeze → At least one pit nearby
 No Stench → No Wumpus nearby
-Stench → Wumpus in one neighbor
+Stench → Wumpus nearby
 🚀 API Endpoints
-/start (POST)
+POST /start
 
-Starts a new game
+Start a new game
 
-Input:
+Request:
 
 {
   "rows": 4,
   "cols": 4,
   "pits": 3
 }
-/step (POST)
+POST /step
 
-Moves agent one step forward
+Move agent one step
 
-/
+GET /
 
-Loads the UI
+Load UI
 
-📊 Game States
-
-Each cell can be:
-
+📊 Cell States
 unknown
 safe
 danger
 inferred
 🛡️ Safety Logic
-Agent never moves randomly
-Moves only if:
+
+Agent moves only if:
+
 Proven safe OR
-Inferred safe
+Logically inferred safe
 
-If no safe move:
+Otherwise:
 
-❌ Agent stops
-📈 Outputs
+❌ Stops
+❌ Termination Conditions
+Falls into pit → Game Over
+Meets Wumpus → Game Over
+No safe moves → Stops
+📈 Output Includes
 Agent position
-Percepts (Breeze, Stench)
+Percepts
 Moves count
 Inference steps
-Game status
-❌ Termination Conditions
-Agent falls into pit → Game Over
-Agent meets Wumpus → Game Over
-No safe moves → Agent halts
-💡 Example
-Agent at (1,2)
-Percepts: Breeze, Stench
-🔮 Future Improvements
-Add shooting arrow to kill Wumpus
-Add scoring system
-Improve UI visualization
-Add manual control mode
