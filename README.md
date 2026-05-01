@@ -1,114 +1,146 @@
-🧠 Wumpus World AI Agent (Flask)
-📌 Overview
+# 🧭 Wumpus World — Logic-Based AI Agent
 
-This project is a Wumpus World simulation built using Flask (Python).
-An intelligent agent explores a grid and avoids dangers using logical reasoning (Knowledge Base + Resolution).
+A Flask-based simulation of the classic **Wumpus World** problem, where an AI agent navigates a grid using **propositional logic** and **resolution-based inference** to avoid pits and the Wumpus.
 
-🎯 Features
-Custom grid size (Rows × Columns)
-Random placement of:
-🕳️ Pits
-👹 Wumpus
-Intelligent agent:
-Detects Breeze and Stench
-Uses logical inference
-Step-by-step simulation
-Web-based interface
-🧩 Concepts Used
-Artificial Intelligence (AI)
-Knowledge-Based Agents
-Propositional Logic
-Resolution Algorithm
-Flask
-🗂️ Project Structure
-project/
-│── app.py
-│── templates/
-│    └── index.html
-│── static/ (optional)
-⚙️ Installation & Setup
-1. Clone Repository
-git clone <your-repo-link>
-cd project
-2. Install Dependencies
+---
+
+## 🗺️ What Is Wumpus World?
+
+Wumpus World is a benchmark environment for knowledge-based AI agents. The agent explores an unknown grid that contains:
+
+- **Wumpus** — a monster that kills the agent on contact
+- **Pits** — bottomless holes that kill the agent on contact
+- **Percepts** — indirect clues the agent uses to reason about danger:
+  - `Breeze` — a pit is in an adjacent cell
+  - `Stench` — the Wumpus is in an adjacent cell
+
+The agent must use logical inference to determine which cells are safe to visit.
+
+---
+
+## ✨ Features
+
+- Configurable grid size and number of pits
+- Propositional logic **Knowledge Base (KB)** built in real time as the agent explores
+- **Resolution-based theorem proving** to verify cell safety before moving
+- Step-by-step agent movement via a REST API
+- Cell state tracking: `unknown`, `inferred` (safe), `safe` (visited), `danger`
+- Inference step counter and move tracker
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.8+
+- Flask
+
+### Installation
+
+```bash
+git clone https://github.com/your-username/wumpus-world.git
+cd wumpus-world
 pip install flask
-3. Run the App
+```
+
+### Running the App
+
+```bash
 python app.py
-4. Open in Browser
-http://127.0.0.1:5000/
-🎮 How It Works
-Start Episode
-User selects:
-Grid size
-Number of pits
-Agent Behavior
-Starts at (0,0)
-Percepts:
-Breeze → Pit nearby
-Stench → Wumpus nearby
-Decision Making
+```
 
-Agent uses:
+The server starts at `http://127.0.0.1:5000` by default.
 
-Knowledge Base (KB)
-Resolution algorithm
+---
 
-To:
+## 📡 API Reference
 
-Infer safe cells
-Avoid danger
-Move step-by-step
-🧠 Knowledge Representation
-P_r_c → Pit at (r,c)
-W_r_c → Wumpus at (r,c)
-!P_r_c → No pit
-!W_r_c → No Wumpus
-🔍 Inference Rules
-No Breeze → No pits nearby
-Breeze → At least one pit nearby
-No Stench → No Wumpus nearby
-Stench → Wumpus nearby
-🚀 API Endpoints
-POST /start
+### `POST /start`
 
-Start a new game
+Initializes a new episode.
 
-Request:
+**Request Body (JSON):**
 
+| Field  | Type | Default | Description              |
+|--------|------|---------|--------------------------|
+| `rows` | int  | `4`     | Number of grid rows (min 3) |
+| `cols` | int  | `4`     | Number of grid columns (min 3) |
+| `pits` | int  | `3`     | Number of pits to place  |
+
+**Example:**
+```json
+{ "rows": 4, "cols": 4, "pits": 3 }
+```
+
+---
+
+### `POST /step`
+
+Advances the agent by one move using the KB to pick a safe cell.
+
+**No request body required.**
+
+---
+
+### Response Schema
+
+Both endpoints return:
+
+```json
 {
-  "rows": 4,
-  "cols": 4,
-  "pits": 3
+  "R": 4,
+  "C": 4,
+  "agent": [0, 1],
+  "alive": true,
+  "running": true,
+  "cell_states": { "0,0": "safe", "0,1": "inferred", ... },
+  "visited": [[0, 0]],
+  "percepts": ["Breeze"],
+  "inference_steps": 12,
+  "moves": 1,
+  "status": "Agent at (0,1). Percepts: Breeze",
+  "pits": [],
+  "wumpus": null
 }
-POST /step
+```
 
-Move agent one step
+> **Note:** `pits` and `wumpus` are only revealed in the response once the agent has entered a danger cell (game over).
 
-GET /
+---
 
-Load UI
+## 🧠 How the Agent Thinks
 
-📊 Cell States
-unknown
-safe
-danger
-inferred
-🛡️ Safety Logic
+1. **Perceive** — On entering a cell, the agent checks for `Breeze` and `Stench`.
+2. **Tell** — The KB is updated with clauses derived from the percepts (e.g., no breeze → no pit in any neighbor).
+3. **Ask** — Before moving to an unvisited neighbor, the agent queries the KB using resolution to prove `¬Pit` and `¬Wumpus`.
+4. **Move** — The agent prioritizes:
+   - Already-inferred safe neighbors
+   - Provably safe unvisited neighbors
+   - Halts if no safe move can be proven
 
-Agent moves only if:
+---
 
-Proven safe OR
-Logically inferred safe
+## 📁 Project Structure
 
-Otherwise:
+```
+wumpus-world/
+├── app.py          # Main Flask application & all game logic
+└── templates/
+    └── index.html  # Frontend UI (connect your own or use the API directly)
+```
 
-❌ Stops
-❌ Termination Conditions
-Falls into pit → Game Over
-Meets Wumpus → Game Over
-No safe moves → Stops
-📈 Output Includes
-Agent position
-Percepts
-Moves count
-Inference steps
+---
+
+## ⚙️ Configuration Notes
+
+- The agent always starts at cell `(0, 0)`, which is guaranteed safe.
+- The Wumpus and pits are never placed at `(0, 0)`.
+- Grid minimum is `3×3`.
+- The resolution prover caps clause count at **800** to prevent runaway inference.
+
+---
+
+## 📄 License
+
+MIT License. Feel free to use, modify, and distribute.
